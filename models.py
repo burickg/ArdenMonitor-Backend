@@ -11,6 +11,7 @@ class Site(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
     nodes = relationship("Node", back_populates="site")
+    recipients = relationship("Recipient", back_populates="site")
 
 class Node(Base):
     __tablename__ = "nodes"
@@ -25,3 +26,11 @@ class Node(Base):
 
     site = relationship("Site", back_populates="nodes")
 
+class Recipient(Base):
+    __tablename__ = "recipients"
+
+    id = Column(Integer, primary_key=True)
+    site_id = Column(Integer, ForeignKey("sites.id"))
+    email = Column(String)
+
+    site = relationship("Site", back_populates="recipients")
