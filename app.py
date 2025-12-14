@@ -12,10 +12,7 @@ def _auth(secret: str | None):
         raise HTTPException(status_code=401, detail="Missing agent secret")
 
 @app.post("/ingest/heartbeat")
-def ingest_heartbeat(
-    payload: dict,
-    x_agent_secret: str | None = Header(default=None)
-):
+def ingest_heartbeat(payload: dict, x_agent_secret: str | None = Header(default=None)):
     _auth(x_agent_secret)
 
     agent_id = payload.get("agent_id")
@@ -23,11 +20,11 @@ def ingest_heartbeat(
     site_name = payload.get("site_name")
 
     if not agent_id or not site_name:
-        raise HTTPException(status_code=400, detail="Missing required fields")
+        raise HTTPException(status_code=400, detail="Missing agent_id or site_name")
 
     db = SessionLocal()
     try:
-        # 1️⃣ Find or create site
+        # Find or create site
         site = db.query(Site).filter(Site.name == site_name).first()
         if not site:
             site = Site(name=site_name)
@@ -35,7 +32,7 @@ def ingest_heartbeat(
             db.commit()
             db.refresh(site)
 
-        # 2️⃣ Find or create node
+        # Find or create node
         node = db.query(Node).filter(Node.agent_id == agent_id).first()
         if not node:
             node = Node(
@@ -46,7 +43,7 @@ def ingest_heartbeat(
             )
             db.add(node)
 
-        # 3️⃣ Update heartbeat
+        # Update heartbeat
         node.last_seen = datetime.utcnow()
         node.status = "green"
 
@@ -60,3 +57,7 @@ def ingest_heartbeat(
 
     finally:
         db.close()
+
+@app.get("/healthz")
+def healthz():
+    return {"ok": True}

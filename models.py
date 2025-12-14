@@ -24,3 +24,4 @@ class Node(Base):
     status = Column(String, default="unknown")
 
     site = relationship("Site", back_populates="nodes")
+
