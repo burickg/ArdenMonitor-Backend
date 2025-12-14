@@ -1,1 +1,7 @@
-notepad requirements.txt
+fastapi
+uvicorn
+gunicorn
+pydantic
+sqlalchemy
+psycopg2-binary
+python-dotenv
